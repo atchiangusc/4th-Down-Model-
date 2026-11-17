@@ -1,0 +1,32 @@
+All 4th downs 2016-2025 (Q1-Q4): 39,102
+  go-for-it rate by season: {2016: 0.127, 2017: 0.127, 2018: 0.149, 2019: 0.164, 2020: 0.192, 2021: 0.208, 2022: 0.189, 2023: 0.197, 2024: 0.204, 2025: 0.232}
+  fake punts/FGs removed from conversion data: 264
+  go        n=20,128  CV AUC=0.959  Brier=0.0596  trees=598
+  converted n= 6,739  CV AUC=0.683  Brier=0.2229  trees=107
+  is_pass   n= 4,029  CV AUC=0.871  Brier=0.1295  trees=146
+  Effect check, 4th & 2 pass at opp 40 (10th / 50th / 90th percentile):
+    off_rating  0.596 / 0.603 / 0.639
+    def_rating  0.583 / 0.603 / 0.613
+    qb_rating   0.582 / 0.583 / 0.619
+    wind  0 mph   0.637
+    wind 10 mph   0.638
+    wind 20 mph   0.635
+  When the model says GO by 2+ win-prob points, coaches went for it:
+         mean  size
+season             
+2021    0.405   833
+2022    0.395   837
+2023    0.427   819
+2024    0.441   851
+2025    0.479   906
+  When the model says KICK/PUNT by 2+ points, coaches went for it 2.5% of 4,799 times
+  WP left on the table 2021-25 by not going in clear spots: 98.3 wins total (0.61 per team-season)
+  2025 most / least aggressive in clear GO spots (min 8):
+         clear_go_spots  went
+posteam                      
+PHI                  26  0.62
+GB                   29  0.62
+DAL                  34  0.65
+LAC                  25  0.20
+SEA                  23  0.26
+HOU                  31  0.29

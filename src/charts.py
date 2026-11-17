@@ -12,16 +12,16 @@ plt.rcParams.update({"figure.facecolor": SURF, "axes.facecolor": SURF, "axes.edg
 
 # 1. Model comparison
 res = pd.read_csv("outputs/model_comparison.csv", index_col=0)
-fig, ax = plt.subplots(figsize=(8, 3.6))
+fig, ax = plt.subplots(figsize=(8.5, 4.4))
 labels = [i.split(". ", 1)[1] for i in res.index][::-1]
 vals = res.auc.values[::-1]
-colors = [BLUE if "defense" in l else "#86b6ef" for l in labels]
+colors = [BLUE if ("defense" in l or "team" in l or "everything" in l) else "#86b6ef" for l in labels]
 ax.barh(labels, vals - 0.5, left=0.5, color=colors, height=0.6)
 for y, v in enumerate(vals):
     ax.text(v + 0.001, y, f"{v:.3f}", va="center", color=INK2, fontsize=10)
 ax.set_xlim(0.5, 0.72); ax.set_xlabel("Out-of-sample AUC, 2024-25 test seasons (0.5 = coin flip)")
 ax.grid(axis="y", visible=False)
-ax.set_title("Adding defensive alignment does not improve accuracy", loc="left", fontsize=12, fontweight="bold")
+ax.set_title("Extra features add little accuracy", loc="left", fontsize=12, fontweight="bold")
 fig.tight_layout(); fig.savefig("outputs/model_comparison.png", dpi=160); plt.close(fig)
 
 # 2. Calibration
@@ -60,11 +60,23 @@ fig.tight_layout(); fig.savefig("outputs/short_yardage_box.png", dpi=160); plt.c
 
 # 4. SHAP importance (top 12)
 imp = pd.read_csv("outputs/shap_importance.csv", index_col=0).mean_abs_shap.head(12)[::-1]
-DEF = {"defenders_in_box", "def_DL", "def_DB", "box_minus_blockers"}
+DEF = {"defenders_in_box", "def_DL", "def_DB", "box_minus_blockers",
+       "off_rating", "def_rating", "qb_rating", "wind", "temp"}
 fig, ax = plt.subplots(figsize=(7, 4.6))
 ax.barh(imp.index, imp.values, color=[BLUE if i in DEF else "#b7d3f6" for i in imp.index], height=0.6)
 ax.grid(axis="y", visible=False)
 ax.set_xlabel("Mean |SHAP value| (log-odds)")
-ax.set_title("What drives the prediction (dark = defensive features)", loc="left", fontsize=12, fontweight="bold")
+ax.set_title("What drives the prediction (dark = engineered features)", loc="left", fontsize=12, fontweight="bold")
 fig.tight_layout(); fig.savefig("outputs/feature_importance.png", dpi=160); plt.close(fig)
-print(cal.round(3)); print(g)
+# 5. Back-test: do coaches follow the model in clear "go" spots?
+bt = pd.read_csv("outputs/backtest_by_season.csv")
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(bt.season, bt["mean"], color=BLUE, lw=2, marker="o", ms=8, mec=SURF, mew=2)
+for x_, v in zip(bt.season, bt["mean"]):
+    ax.text(x_, v + 0.012, f"{v:.0%}", ha="center", color=INK2, fontsize=10)
+ax.set_ylim(0, 0.7); ax.set_xticks(bt.season)
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+ax.set_ylabel("Share of clear GO spots where teams went for it")
+ax.set_title("Coaches are slowly closing the gap with the model", loc="left", fontsize=12, fontweight="bold")
+fig.text(0.01, 0.01, "Clear GO spot: going for it beats the best alternative by 2+ win-probability points", color=INK2, fontsize=9)
+fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig("outputs/backtest_trend.png", dpi=160); plt.close(fig)

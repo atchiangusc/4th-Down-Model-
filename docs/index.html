@@ -9,289 +9,327 @@
 <style>
 :root{
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984;
-  --line:#e4e3df; --blue:#2a78d6; --aqua:#1baf7a; --orange:#eb6834; --chip:#f0efec;
+  --line:#e4e3df; --chip:#f0efec; --track:#e9e8e4;
+  --blue:#2a78d6; --aqua:#1baf7a; --orange:#eb6834; --violet:#6250d6; --yellow:#eda100; --gray:#a8a7a2;
+  --blue-soft:#b7d3f6;
 }
 @media (prefers-color-scheme: dark){
   :root{ --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8f8e88;
-    --line:#383835; --blue:#3987e5; --aqua:#199e70; --orange:#d95926; --chip:#262624; }
+    --line:#383835; --chip:#262624; --track:#2c2c2a;
+    --blue:#3987e5; --aqua:#199e70; --orange:#d95926; --violet:#9085e9; --yellow:#c98500; --gray:#6b6a66;
+    --blue-soft:#184f95; }
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--page);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.45}
-.wrap{max-width:980px;margin:0 auto;padding:28px 20px 48px}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 20px 48px}
 h1{font-size:24px;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
-.sub{color:var(--ink2);margin:0 0 22px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
-.inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-label{display:block;font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
-select,input{width:100%;font:inherit;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
-.row{display:flex;gap:6px}
-.row>*{flex:1}
+h2{font-size:15px;margin:0 0 10px;font-weight:600}
+.sub{color:var(--ink2);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:14px}
+.inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 16px}
+label,.lab{display:block;font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+select,input[type=number],input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.row{display:flex;gap:6px}.row>*{flex:1}
 .hint{font-size:12px;color:var(--muted);margin-top:4px}
-.situation{margin:20px 0 12px;font-size:17px;font-weight:600}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.flag{display:inline-block;margin-top:4px;font-size:12px;color:var(--ink2);background:var(--chip);border-radius:6px;padding:2px 7px}
-.dash{width:16px;height:0;border-top:2px dashed var(--aqua)}
+details.adv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.adv summary{cursor:pointer;font-weight:600;font-size:14px}
+details.adv .inputs{margin-top:12px}
+.situation{margin:22px 0 0;font-size:17px;font-weight:600}
+.rec{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.rec .call{font-size:34px;font-weight:700;letter-spacing:-.02em}
+.tag{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--chip);color:var(--ink2)}
+.rec-sub{color:var(--ink2);margin-top:4px}
+.opts{margin-top:16px;display:grid;gap:10px}
+.opt{display:grid;grid-template-columns:120px 1fr 64px;align-items:center;gap:12px;font-size:14px}
+.opt .bar{height:22px;background:var(--track);border-radius:4px;position:relative;overflow:hidden}
+.opt .fill{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;background:var(--blue-soft)}
+.opt.best .fill{background:var(--blue)}
+.opt .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.opt.na{color:var(--muted)} .opt.na .val{font-weight:400}
+.be{margin-top:18px}
+.track{position:relative;height:10px;background:var(--track);border-radius:5px;margin:30px 0 26px}
+.track .zone{position:absolute;top:0;bottom:0;right:0;background:var(--blue-soft);border-radius:0 5px 5px 0}
+.mk{position:absolute;top:-5px;width:2px;height:20px;background:var(--ink)}
+.mk span{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:12px;color:var(--ink2)}
+.mk.top span{top:-20px}.mk.bot span{top:22px}
+.dotmk{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--blue);border:3px solid var(--surface)}
+.grid3{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .stat .k{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:8px}
-.dot{width:10px;height:10px;border-radius:50%}
-.stat .v{font-size:44px;font-weight:700;letter-spacing:-.02em;margin:4px 0 2px}
-.stat .d{font-size:13px;color:var(--ink2)}
-.verdict{margin-top:16px;padding:12px 14px;background:var(--chip);border-radius:8px;font-size:14px}
-.verdict b{font-weight:600}
-.chartcard{margin-top:16px}
-.chartcard h2{font-size:15px;margin:0 0 2px}
-.legend{display:flex;gap:18px;font-size:13px;color:var(--ink2);margin:6px 0 4px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dash{width:16px;height:0;border-top:2px dashed var(--aqua);flex:none}
+.stat .v{font-size:32px;font-weight:700;letter-spacing:-.02em;margin:2px 0}
+.stat .d{font-size:12px;color:var(--ink2)}
+.flag{display:inline-block;margin-top:4px;font-size:12px;color:var(--ink2);background:var(--chip);border-radius:6px;padding:2px 7px}
+.note{margin-top:12px;font-size:13px;color:var(--ink2)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin:4px 0 6px}
 .legend span{display:flex;align-items:center;gap:6px}
+.sq{width:12px;height:12px;border-radius:3px;flex:none}
 svg{display:block;width:100%;height:auto;overflow:visible}
-.tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:5}
+.tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:5;min-width:170px}
 .tip .t{font-weight:600;margin-bottom:3px}
-.foot{margin-top:18px;font-size:12px;color:var(--muted)}
-.foot a{color:var(--ink2)}
-details{margin-top:12px;font-size:13px;color:var(--ink2)}
-table{border-collapse:collapse;font-size:13px;margin-top:8px}
-td,th{padding:4px 10px;border-bottom:1px solid var(--line);text-align:right}
+details.tv{margin-top:10px;font-size:13px;color:var(--ink2)}
+table{border-collapse:collapse;font-size:13px;margin-top:8px;width:100%}
+td,th{padding:4px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{text-align:left}
-@media (max-width:720px){.inputs{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr}.stat .v{font-size:34px}}
+.foot{margin-top:18px;font-size:12px;color:var(--muted)}
+@media (max-width:760px){.inputs{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.opt{grid-template-columns:90px 1fr 56px}.rec .call{font-size:28px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>4th Down Decision Calculator</h1>
-  <p class="sub">Enter a situation to see the odds of converting with a run or a pass, and how often NFL coaches actually go for it and what they call.</p>
+  <p class="sub">Should a team go for it, kick, or punt? Enter a situation to see each choice's win probability, the odds of converting with a run or a pass, and what NFL coaches actually do.</p>
 
   <div class="card">
     <div class="inputs">
-      <div>
-        <label for="yd">Yards to go</label>
-        <select id="yd"></select>
-      </div>
-      <div>
-        <label>Ball on</label>
-        <div class="row">
-          <select id="side"><option value="own">Own</option><option value="opp" selected>Opp</option></select>
-          <input id="yl" type="number" min="1" max="50" value="40">
-        </div>
-      </div>
-      <div>
-        <label>Quarter &amp; clock</label>
-        <div class="row">
-          <select id="qtr"><option>1</option><option>2</option><option>3</option><option selected>4</option></select>
-          <input id="clock" value="8:30" aria-label="Clock (mm:ss)">
-        </div>
-      </div>
-      <div>
-        <label for="score">Score margin</label>
-        <input id="score" type="number" value="-3" step="1">
-        <div class="hint">Offense minus defense</div>
-      </div>
+      <div><label for="yd">Yards to go</label><select id="yd"></select></div>
+      <div><span class="lab">Ball on</span>
+        <div class="row"><select id="side" aria-label="Side of field"><option value="own">Own</option><option value="opp" selected>Opp</option></select>
+        <input id="yl" type="number" min="1" max="50" value="40" aria-label="Yard line"></div></div>
+      <div><span class="lab">Quarter &amp; clock</span>
+        <div class="row"><select id="qtr" aria-label="Quarter"><option>1</option><option>2</option><option>3</option><option selected>4</option></select>
+        <input id="clock" type="text" value="8:30" aria-label="Clock (mm:ss)"></div></div>
+      <div><label for="score">Score margin</label><input id="score" type="number" value="-3" step="1"><div class="hint">Offense minus defense</div></div>
+      <div><label for="to_off">Offense timeouts</label><select id="to_off"><option>0</option><option>1</option><option>2</option><option selected>3</option></select></div>
+      <div><label for="to_def">Defense timeouts</label><select id="to_def"><option>0</option><option>1</option><option>2</option><option selected>3</option></select></div>
+      <div><label for="spread">Point spread</label><input id="spread" type="number" value="0" step="0.5"><div class="hint">Points the offense was favored by before the game</div></div>
     </div>
+    <details class="adv">
+      <summary>Team strength &amp; weather</summary>
+      <div class="inputs">
+        <div><label for="off">Offense strength: <span id="off_v"></span></label><input id="off" type="range" min="1" max="99" value="50"><div class="hint">Percentile of recent EPA per play</div></div>
+        <div><label for="def">Opposing defense: <span id="def_v"></span></label><input id="def" type="range" min="1" max="99" value="50"><div class="hint">99 = elite defense</div></div>
+        <div><label for="qb">Quarterback: <span id="qb_v"></span></label><input id="qb" type="range" min="1" max="99" value="50"><div class="hint">Percentile of recent EPA per dropback</div></div>
+        <div><span class="lab">Stadium &amp; weather</span>
+          <div class="row"><select id="roof" aria-label="Roof"><option value="1">Outdoors</option><option value="0">Dome</option></select></div>
+          <div class="row" style="margin-top:6px"><input id="wind" type="number" min="0" max="40" value="5" aria-label="Wind mph"><input id="temp" type="number" min="-10" max="110" value="60" aria-label="Temperature F"></div>
+          <div class="hint">Wind (mph), temperature (&deg;F)</div></div>
+      </div>
+    </details>
   </div>
 
   <div class="situation" id="situation"></div>
 
   <div class="card">
-    <div class="stats">
-      <div class="stat">
-        <div class="k"><span class="dot" style="background:var(--blue)"></span>If you run</div>
-        <div class="v" id="prun">-</div>
-        <div class="d" id="nrun"></div>
-      </div>
-      <div class="stat">
-        <div class="k"><span class="dot" style="background:var(--aqua)"></span>If you pass</div>
-        <div class="v" id="ppass">-</div>
-        <div class="d" id="npass"></div>
-      </div>
-      <div class="stat">
-        <div class="k"><span class="dot" style="background:var(--orange)"></span>NFL coaches go for it</div>
-        <div class="v" id="pgo">-</div>
-        <div class="d" id="callmix"></div>
-      </div>
+    <div class="rec"><div class="call" id="call">-</div><span class="tag" id="strength"></span></div>
+    <div class="rec-sub" id="recsub"></div>
+    <div class="opts" id="opts"></div>
+    <div class="be">
+      <h2 style="margin-top:20px">How likely does a conversion need to be?</h2>
+      <div class="rec-sub" id="betext"></div>
+      <div class="track" id="track"></div>
     </div>
-    <div class="d" id="hist" style="margin-top:12px;font-size:13px;color:var(--ink2)"></div>
-    <div class="verdict" id="verdict"></div>
   </div>
 
-  <div class="card chartcard">
+  <div class="card">
+    <div class="grid3">
+      <div class="stat"><div class="k"><span class="dot" style="background:var(--blue)"></span>If they run</div><div class="v" id="prun">-</div><div class="d" id="nrun"></div></div>
+      <div class="stat"><div class="k"><span class="dash"></span>If they pass</div><div class="v" id="ppass">-</div><div class="d" id="npass"></div></div>
+      <div class="stat"><div class="k"><span class="dot" style="background:var(--orange)"></span>Coaches go for it</div><div class="v" id="pgo">-</div><div class="d" id="callmix"></div></div>
+      <div class="stat"><div class="k">Field goal try</div><div class="v" id="pfg">-</div><div class="d" id="fgd"></div></div>
+    </div>
+    <div class="note" id="hist"></div>
+  </div>
+
+  <div class="card">
     <h2 id="charttitle">Across the field</h2>
     <div class="legend">
       <span><span class="dot" style="background:var(--blue)"></span>Run converts</span>
       <span><span class="dash"></span>Pass converts</span>
       <span><span class="dot" style="background:var(--orange)"></span>Coaches go for it</span>
     </div>
-    <svg id="chart" viewBox="0 0 900 300" role="img" aria-label="Run and pass conversion chance and coach go rate by field position"></svg>
-    <details><summary>Table view</summary><div id="tbl"></div></details>
+    <svg id="chart" viewBox="0 0 900 330" role="img" aria-label="Conversion odds, coach go rate and the model's recommended choice by field position"></svg>
+    <div class="legend" style="margin-top:2px">Model's call:
+      <span><span class="sq" style="background:var(--violet)"></span>Go for it</span>
+      <span><span class="sq" style="background:var(--yellow)"></span>Field goal</span>
+      <span><span class="sq" style="background:var(--gray)"></span>Punt</span>
+    </div>
+    <details class="tv"><summary>Table view</summary><div id="tbl"></div></details>
   </div>
 
   <p class="foot">
-    Data: nflverse play-by-play 2016-2025 via nflreadpy. Coach model trained on every 4th down 2021-2025 (CV AUC 0.96);
-    conversion model trained on all 4th-down attempts 2016-2025 with run vs. pass as an input (CV AUC 0.68); play-call model trained on
-    2021-2025 attempts (CV AUC 0.87). Clock and score are grouped into ranges. Runs on 4th and long are rare and often surprise calls,
-    so run odds past 4th and 3 lean on few plays. This tool describes; it does not recommend.
+    Models trained on nflverse play-by-play, 2016-2025. Win probability: LightGBM on 398k snaps (AUC 0.85 on 2025). Conversion: LightGBM on 6,739 attempts, fake punts and field goals excluded (CV AUC 0.68).
+    Coaches: 20,128 fourth downs 2021-2025 (CV AUC 0.96). Field goals: logistic regression on 6,609 kicks 2020-2025. All models run in your browser.
+    Simplifications: a successful conversion gains the average yards for that distance; a punt nets the average result from that spot; kickoffs start at the 30. Close calls (under 1 point) are within the model's error. Teams mostly go for it when they like their chances, so past conversion rates may flatter rare attempts, especially from a team's own territory.
+    <a href="https://github.com/atchiangusc/4th-Down-Model-" style="color:var(--ink2)">Source code</a>
   </p>
 </div>
 <div class="tip" id="tip"></div>
 
+<script src="engine.js"></script>
 <script>
 const $ = id => document.getElementById(id);
-let G = null;
+let M = null;
 for (let i = 1; i <= 15; i++) {
   const o = document.createElement('option'); o.value = i; o.textContent = i === 15 ? '15+' : i;
   if (i === 2) o.selected = true; $('yd').appendChild(o);
 }
+const pct = v => Math.round(v * 100) + '%';
+const pts = v => (v * 100).toFixed(1);
+const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+const ydLabel = yl => yl === 50 ? 'midfield' : (yl > 50 ? 'own ' + (100 - yl) : 'opp ' + yl);
+const NAMES = { go: 'Go for it', fg: 'Kick a field goal', punt: 'Punt' };
+const SHORT = { go: 'Go for it', fg: 'Field goal', punt: 'Punt' };
 
-function timeBucket(q, secs) {
-  if (q === 1) return 0;
-  if (q === 2) return secs <= 120 ? 2 : 1;
-  if (q === 3) return 3;
-  if (secs > 600) return 4; if (secs > 300) return 5; if (secs > 120) return 6; return 7;
-}
-function scoreBucket(s) {
-  if (s <= -9) return 0; if (s <= -4) return 1; if (s <= -1) return 2; if (s === 0) return 3;
-  if (s <= 3) return 4; if (s <= 8) return 5; return 6;
-}
 function parseClock(v) {
   const m = String(v).trim().match(/^(\d{1,2})(?::(\d{1,2}))?$/);
-  if (!m) return null;
-  const s = (+m[1]) * 60 + (+(m[2] || 0));
-  return Math.min(Math.max(s, 0), 900);
+  if (!m) return 450;
+  return Math.min(Math.max((+m[1]) * 60 + (+(m[2] || 0)), 0), 900);
 }
-const pct = v => Math.round(v * 100) + '%';
-const ydLabel = yl100 => yl100 === 50 ? 'midfield' : (yl100 > 50 ? 'own ' + (100 - yl100) : 'opp ' + yl100);
-
-function state() {
-  let yl = Math.min(Math.max(parseInt($('yl').value) || 1, 1), 50);
+function readState() {
+  const yl = Math.min(Math.max(parseInt($('yl').value) || 1, 1), 50);
   const yl100 = $('side').value === 'opp' ? yl : 100 - yl;
-  let yd = parseInt($('yd').value);
-  if (yd > yl100) yd = yl100; // goal to go
-  const q = parseInt($('qtr').value);
-  const secs = parseClock($('clock').value) ?? 450;
-  const sc = parseInt($('score').value) || 0;
-  return { yd, yl100, q, secs, sc, t: timeBucket(q, secs), s: scoreBucket(sc) };
+  const yd = Math.min(parseInt($('yd').value), yl100);
+  const q = parseInt($('qtr').value), clk = parseClock($('clock').value);
+  const off = +$('off').value, def = +$('def').value, qb = +$('qb').value;
+  const outdoors = +$('roof').value;
+  $('off_v').textContent = ordinal(off); $('def_v').textContent = ordinal(def); $('qb_v').textContent = ordinal(qb);
+  $('wind').disabled = $('temp').disabled = !outdoors;
+  return {
+    ydstogo: yd, yardline_100: yl100, q, clk,
+    game_seconds_remaining: (4 - q) * 900 + clk,
+    half_seconds_remaining: (q === 1 || q === 3 ? 900 : 0) + clk,
+    score_differential: parseInt($('score').value) || 0,
+    posteam_timeouts_remaining: +$('to_off').value, defteam_timeouts_remaining: +$('to_def').value,
+    spread: parseFloat($('spread').value) || 0,
+    off_rating: M.pct.off_rating[off],
+    def_rating: M.pct.def_rating[100 - def],      // higher def_rating = worse defense
+    qb_rating: M.pct.qb_rating[qb],
+    outdoors, wind: outdoors ? Math.min(Math.max(+$('wind').value || 0, 0), 40) : 0,
+    temp: outdoors ? (+$('temp').value || 60) : 70
+  };
 }
-function lookup(kind, t, s, yd, yl100) {
-  const v = G[kind][t + '_' + s][yd - 1][yl100 - 1];
-  return v < 0 ? null : v / 100;
-}
+function at(s, yl) { return Object.assign({}, s, { yardline_100: yl, ydstogo: Math.min(s.ydstogo, yl) }); }
 
 function render() {
-  if (!G) return;
-  const st = state();
-  const key = st.t + '_' + st.s;
-  const run = lookup('run', st.t, st.s, st.yd, st.yl100);
-  const pas = lookup('pass', st.t, st.s, st.yd, st.yl100);
-  const go = lookup('go', st.t, st.s, st.yd, st.yl100);
-  const prate = lookup('passrate', st.t, st.s, st.yd, st.yl100);
-  const goal = st.yd >= st.yl100;
-  const ydTxt = goal ? 'goal' : (st.yd >= 15 ? '15+' : st.yd);
-  const mm = Math.floor(st.secs / 60), ss = String(st.secs % 60).padStart(2, '0');
-  const marg = st.sc === 0 ? 'tied' : (st.sc > 0 ? 'up ' + st.sc : 'down ' + (-st.sc));
-  $('situation').textContent = `4th & ${ydTxt} at the ${ydLabel(st.yl100)}, Q${st.q} ${mm}:${ss}, ${marg}`;
-  $('prun').textContent = pct(run);
-  $('ppass').textContent = pct(pas);
-  $('pgo').textContent = pct(go);
-  const ydk = Math.min(st.yd, 15), dist = st.yd >= 15 ? '15+' : st.yd;
-  const nr = G.n_run[ydk] || 0, np = G.n_pass[ydk] || 0;
-  $('nrun').innerHTML = `${nr.toLocaleString()} runs on 4th & ${dist} since 2016` + (nr < 100 ? '<br><span class="flag">Few plays: rough estimate</span>' : '');
-  $('npass').innerHTML = `${np.toLocaleString()} passes on 4th & ${dist} since 2016` + (np < 100 ? '<br><span class="flag">Few plays: rough estimate</span>' : '');
-  $('callmix').textContent = `When they go, coaches pass ${pct(prate)} of the time`;
+  if (!M) return;
+  const s = readState();
+  const r = FourthDown.evaluate(M, s);
+  const goal = s.ydstogo >= s.yardline_100;
+  const dist = goal ? 'goal' : (s.ydstogo >= 15 ? '15+' : s.ydstogo);
+  const ss = String(s.clk % 60).padStart(2, '0');
+  const sc = s.score_differential, marg = sc === 0 ? 'tied' : (sc > 0 ? 'up ' + sc : 'down ' + (-sc));
+  $('situation').textContent = `4th & ${dist} at the ${ydLabel(s.yardline_100)}, Q${s.q} ${Math.floor(s.clk / 60)}:${ss}, ${marg}`;
 
-  const zone = Math.floor((st.yl100 - 1) / 10);
-  const h = G.hist[ydk + '_' + zone];
-  const zLo = zone * 10 + 1, zHi = zone * 10 + 10;
-  const zTxt = `${ydLabel(zHi)} to ${ydLabel(zLo)}`;
-  $('hist').textContent = h
-    ? `Actual results, 4th & ${dist} from the ${zTxt} (any score or clock): teams went for it ${pct(h[1])} of ${h[0].toLocaleString()} times since 2021, and converted ${pct(h[3])} of ${h[2].toLocaleString()} attempts since 2016.`
-    : 'No past plays in this exact spot.';
+  // Recommendation
+  $('call').textContent = NAMES[r.best];
+  const m = r.margin * 100;
+  $('strength').textContent = m < 1 ? 'Close call' : m < 3 ? 'Lean' : 'Clear call';
+  const others = r.options.filter(o => o.ok && o.k !== r.best).sort((a, b) => b.wp - a.wp);
+  $('recsub').textContent = others.length
+    ? `Wins ${pts(r.margin)} percentage points more often than the next best choice (${SHORT[others[0].k].toLowerCase()}).`
+    : 'The only realistic choice from here.';
+  const maxWp = Math.max(...r.options.map(o => o.wp));
+  $('opts').innerHTML = r.options.map(o => {
+    const na = !o.ok, best = o.k === r.best;
+    const why = o.k === 'fg' ? `${r.dist}-yard try, too long` : 'too close to punt';
+    return `<div class="opt${best ? ' best' : ''}${na ? ' na' : ''}"><div>${SHORT[o.k]}</div>
+      <div class="bar">${na ? '' : `<div class="fill" style="width:${(o.wp / Math.max(maxWp, 0.01) * 100).toFixed(1)}%"></div>`}</div>
+      <div class="val">${na ? why : pct(o.wp)}</div></div>`;
+  }).join('') + '<div class="hint">Win probability for the offense with each choice</div>';
 
-  const best = run >= pas ? 'run' : 'pass', bestP = Math.max(run, pas);
-  const gap = Math.abs(run - pas);
-  let msg;
-  if (go >= 0.6) msg = `<b>Coaches usually go for it here (${pct(go)}).</b> `;
-  else if (go >= 0.35) msg = `<b>It's a toss-up for NFL coaches here (${pct(go)} go).</b> `;
-  else msg = `<b>Coaches usually punt or kick here (${pct(go)} go).</b> `;
-  if (gap >= 0.05) {
-    const thin = best === 'run' && nr < 100;
-    const mixMismatch = (best === 'run' && prate > 0.6) || (best === 'pass' && prate < 0.4);
-    msg += `A ${best}'s odds are ${Math.round(gap * 100)} percentage points higher than a ${best === 'run' ? 'pass' : 'run'}'s`;
-    msg += mixMismatch ? `, yet coaches ${best === 'run' ? 'pass' : 'run'} most of the time (${pct(best === 'run' ? prate : 1 - prate)}).` : '.';
-    if (thin) msg += ' The run estimate rests on few plays at this distance, and defenses may not expect a run here, which can inflate past results.';
-  } else {
-    msg += `Run and pass convert at similar rates (${pct(run)} vs. ${pct(pas)}).`;
-  }
-  if (go < 0.35 && bestP >= 0.5) msg += ' Whether kicking is right depends on the punt or field goal alternative, which this tool doesn\'t model.';
-  $('verdict').innerHTML = msg;
+  // Break-even track
+  const be = r.breakeven, pc = r.pConv;
+  const alt = r.options.filter(o => o.ok && o.k !== 'go').sort((a, b) => b.wp - a.wp)[0];
+  $('betext').innerHTML = alt
+    ? `Going for it beats ${alt.k === 'fg' ? 'kicking' : 'punting'} if the chance to convert is above <b>${pct(be)}</b>. The model's estimate for this offense: <b>${pct(pc)}</b>.`
+    : `Kicking and punting aren't realistic here, so going for it is the call at any conversion rate. The model's estimate: <b>${pct(pc)}</b>.`;
+  $('track').innerHTML = `<div class="zone" style="left:${be * 100}%"></div>
+    <div class="mk top" style="left:${be * 100}%"><span>Break-even ${pct(be)}</span></div>
+    <div class="dotmk" style="left:${pc * 100}%"></div>
+    <div class="mk bot" style="left:${pc * 100}%;background:transparent"><span>Estimate ${pct(pc)}</span></div>`;
 
-  drawChart(st);
+  // Conversion and coach stats
+  $('prun').textContent = pct(r.pRun); $('ppass').textContent = pct(r.pPass); $('pgo').textContent = pct(r.coachGo);
+  const ydk = Math.min(s.ydstogo, 15), nr = M.n_run[ydk] || 0, np = M.n_pass[ydk] || 0, dl = s.ydstogo >= 15 ? '15+' : s.ydstogo;
+  $('nrun').innerHTML = `${nr.toLocaleString()} runs on 4th & ${dl} since 2016` + (nr < 100 ? '<br><span class="flag">Few plays: rough estimate</span>' : '');
+  $('npass').innerHTML = `${np.toLocaleString()} passes on 4th & ${dl} since 2016` + (np < 100 ? '<br><span class="flag">Few plays: rough estimate</span>' : '');
+  $('callmix').textContent = `When they go, they pass ${pct(r.passRate)} of the time`;
+  $('pfg').textContent = r.dist <= 66 ? pct(r.pFg) : '-';
+  $('fgd').textContent = `${r.dist}-yard attempt` + (s.outdoors && s.wind >= 10 ? `, ${s.wind} mph wind` : '');
+  const zone = Math.floor((s.yardline_100 - 1) / 10), h = M.hist[ydk + '_' + zone];
+  const zTxt = `${ydLabel(zone * 10 + 10)} to ${ydLabel(zone * 10 + 1)}`;
+  let note = h ? `Actual results, 4th & ${dl} from the ${zTxt} (any score or clock): teams went for it ${pct(h[1])} of ${h[0].toLocaleString()} times since 2021 and converted ${pct(h[3])} of ${h[2].toLocaleString()} attempts since 2016.` : '';
+  if (r.best === 'go' && r.coachGo < 0.4 && m >= 1) note += ` <b>Coaches are more conservative than the model here:</b> it says go, but only ${pct(r.coachGo)} of teams do.`;
+  if (r.best !== 'go' && r.coachGo > 0.6 && m >= 1) note += ` <b>Coaches are more aggressive than the model here:</b> ${pct(r.coachGo)} go for it.`;
+  $('hist').innerHTML = note;
+
+  drawChart(s);
 }
 
-function drawChart(st) {
-  const W = 900, H = 300, m = { l: 44, r: 16, t: 14, b: 40 };
+function drawChart(s) {
+  const W = 900, H = 330, m = { l: 44, r: 16, t: 14, b: 76 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const x = yl100 => m.l + (99 - yl100) / 98 * iw;       // own goal on the left, opponent's on the right
-  const y = p => m.t + (1 - p) * ih;
-  const pts = { run: [], pass: [], go: [] };
-  for (let yl = 99; yl >= 1; yl--) {
-    const yd = Math.min(st.yd, yl);
-    pts.run.push([yl, lookup('run', st.t, st.s, yd, yl)]);
-    pts.pass.push([yl, lookup('pass', st.t, st.s, yd, yl)]);
-    pts.go.push([yl, lookup('go', st.t, st.s, yd, yl)]);
-  }
-  const path = arr => arr.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ',' + y(p[1]).toFixed(1)).join('');
-  let s = '';
+  const x = yl => m.l + (99 - yl) / 98 * iw, y = p => m.t + (1 - p) * ih;
+  const rows = [];
+  for (let yl = 99; yl >= 1; yl--) rows.push([yl, FourthDown.evaluate(M, at(s, yl))]);
+  const path = key => rows.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ',' + y(p[1][key]).toFixed(1)).join('');
+  let g = '';
   [0, .25, .5, .75, 1].forEach(v => {
-    s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/>`;
-    s += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--ink2)">${v * 100}%</text>`;
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>`;
+    g += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--ink2)">${v * 100}%</text>`;
+  });
+  g += `<line x1="${x(s.yardline_100)}" x2="${x(s.yardline_100)}" y1="${m.t}" y2="${m.t + ih + 34}" stroke="var(--ink2)" stroke-dasharray="3 3"/>`;
+  g += `<path d="${path('pRun')}" fill="none" stroke="var(--blue)" stroke-width="2"/>`;
+  g += `<path d="${path('pPass')}" fill="none" stroke="var(--aqua)" stroke-width="2" stroke-dasharray="6 4"/>`;
+  g += `<path d="${path('coachGo')}" fill="none" stroke="var(--orange)" stroke-width="2"/>`;
+  const cur = rows.find(p => p[0] === s.yardline_100)[1];
+  [['pRun', 'blue'], ['pPass', 'aqua'], ['coachGo', 'orange']].forEach(([k, c]) => {
+    g += `<circle cx="${x(s.yardline_100)}" cy="${y(cur[k])}" r="5" fill="var(--${c})" stroke="var(--surface)" stroke-width="2"/>`;
+  });
+  // Recommendation strip: one cell per yard line, 1px surface gap between runs
+  const sy = m.t + ih + 12, sh = 22, col = { go: 'var(--violet)', fg: 'var(--yellow)', punt: 'var(--gray)' };
+  let runs = [];
+  rows.forEach(([yl, r]) => {
+    const last = runs[runs.length - 1];
+    if (last && last.k === r.best) last.to = yl; else runs.push({ k: r.best, from: yl, to: yl });
+  });
+  runs.forEach(rn => {
+    const x0 = x(rn.from + 0.5), x1 = x(rn.to - 0.5), w = Math.max(x1 - x0 - 2, 1);
+    g += `<rect x="${(x0 + 1).toFixed(1)}" y="${sy}" width="${w.toFixed(1)}" height="${sh}" rx="3" fill="${col[rn.k]}"/>`;
+    if (w > 46) g += `<text x="${(x0 + 1 + w / 2).toFixed(1)}" y="${sy + 15}" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">${SHORT[rn.k].toUpperCase()}</text>`;
   });
   [[90, 'Own 10'], [70, 'Own 30'], [50, '50'], [30, 'Opp 30'], [10, 'Opp 10']].forEach(([yl, lab]) => {
-    s += `<text x="${x(yl)}" y="${H - m.b + 20}" text-anchor="middle" font-size="12" fill="var(--ink2)">${lab}</text>`;
+    g += `<text x="${x(yl)}" y="${sy + sh + 20}" text-anchor="middle" font-size="12" fill="var(--ink2)">${lab}</text>`;
   });
-  s += `<line x1="${x(st.yl100)}" x2="${x(st.yl100)}" y1="${m.t}" y2="${m.t + ih}" stroke="var(--ink2)" stroke-width="1" stroke-dasharray="3 3"/>`;
-  s += `<path d="${path(pts.run)}" fill="none" stroke="var(--blue)" stroke-width="2"/>`;
-  s += `<path d="${path(pts.pass)}" fill="none" stroke="var(--aqua)" stroke-width="2" stroke-dasharray="6 4"/>`;
-  s += `<path d="${path(pts.go)}" fill="none" stroke="var(--orange)" stroke-width="2"/>`;
-  const cyd = Math.min(st.yd, st.yl100);
-  const rv = lookup('run', st.t, st.s, cyd, st.yl100), pv = lookup('pass', st.t, st.s, cyd, st.yl100), gv = lookup('go', st.t, st.s, cyd, st.yl100);
-  s += `<circle cx="${x(st.yl100)}" cy="${y(rv)}" r="5" fill="var(--blue)" stroke="var(--surface)" stroke-width="2"/>`;
-  s += `<circle cx="${x(st.yl100)}" cy="${y(pv)}" r="5" fill="var(--aqua)" stroke="var(--surface)" stroke-width="2"/>`;
-  s += `<circle cx="${x(st.yl100)}" cy="${y(gv)}" r="5" fill="var(--orange)" stroke="var(--surface)" stroke-width="2"/>`;
-  s += `<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" stroke="var(--muted)" stroke-width="1" style="display:none"/>`;
-  s += `<rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
-  const svg = $('chart'); svg.innerHTML = s;
-  $('charttitle').textContent = `4th & ${st.yd >= 15 ? '15+' : st.yd} across the field (${G.time[st.t]}, ${G.score[st.s]})`;
+  g += `<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${sy + sh}" stroke="var(--muted)" style="display:none"/>`;
+  g += `<rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${sy + sh - m.t}" fill="transparent" style="cursor:crosshair"/>`;
+  const svg = $('chart'); svg.innerHTML = g;
+  $('charttitle').textContent = `4th & ${s.ydstogo >= 15 ? '15+' : s.ydstogo} at every spot on the field, same clock and score`;
 
-  const tip = $('tip'), xh = svg.querySelector('#xh');
-  svg.querySelector('#hit').addEventListener('mousemove', e => {
-    const r = svg.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width * W;
-    const yl = Math.min(99, Math.max(1, Math.round(99 - (px - m.l) / iw * 98)));
-    const yd = Math.min(st.yd, yl);
+  const tip = $('tip'), xh = svg.querySelector('#xh'), hit = svg.querySelector('#hit');
+  const ylAt = e => { const b = svg.getBoundingClientRect(); return Math.min(99, Math.max(1, Math.round(99 - ((e.clientX - b.left) / b.width * W - m.l) / iw * 98))); };
+  hit.addEventListener('mousemove', e => {
+    const yl = ylAt(e), r = rows.find(p => p[0] === yl)[1], yd = Math.min(s.ydstogo, yl);
     xh.setAttribute('x1', x(yl)); xh.setAttribute('x2', x(yl)); xh.style.display = '';
     tip.innerHTML = `<div class="t">4th & ${yd >= yl ? 'goal' : yd} at the ${ydLabel(yl)}</div>
-      <div><span style="color:var(--blue)">●</span> Run converts: ${pct(lookup('run', st.t, st.s, yd, yl))}</div>
-      <div><span style="color:var(--aqua)">●</span> Pass converts: ${pct(lookup('pass', st.t, st.s, yd, yl))}</div>
-      <div><span style="color:var(--orange)">●</span> Coaches go: ${pct(lookup('go', st.t, st.s, yd, yl))}</div>`;
+      <div><span style="color:var(--blue)">&#9679;</span> Run converts: ${pct(r.pRun)}</div>
+      <div><span style="color:var(--aqua)">&#9679;</span> Pass converts: ${pct(r.pPass)}</div>
+      <div><span style="color:var(--orange)">&#9679;</span> Coaches go: ${pct(r.coachGo)}</div>
+      <div style="margin-top:3px">Model's call: <b>${SHORT[r.best]}</b> (+${pts(r.margin)} pts)</div>`;
     tip.style.display = 'block';
-    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - 200) + 'px';
+    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - 220) + 'px';
     tip.style.top = (e.clientY + 14) + 'px';
   });
-  svg.querySelector('#hit').addEventListener('mouseleave', () => { tip.style.display = 'none'; xh.style.display = 'none'; });
-  svg.querySelector('#hit').addEventListener('click', e => {
-    const r = svg.getBoundingClientRect();
-    const yl = Math.min(99, Math.max(1, Math.round(99 - ((e.clientX - r.left) / r.width * W - m.l) / iw * 98)));
+  hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; xh.style.display = 'none'; });
+  hit.addEventListener('click', e => {
+    const yl = ylAt(e);
     if (yl >= 50) { $('side').value = 'own'; $('yl').value = 100 - yl; } else { $('side').value = 'opp'; $('yl').value = yl; }
     render();
   });
 
-  let t = '<table><tr><th>Ball on</th><th>Run converts</th><th>Pass converts</th><th>Coaches go</th><th>Coaches pass</th></tr>';
-  [90, 80, 70, 60, 50, 40, 35, 30, 25, 20, 15, 10, 5, 2].forEach(yl => {
-    const yd = Math.min(st.yd, yl);
-    t += `<tr><td>${ydLabel(yl)}</td><td>${pct(lookup('run', st.t, st.s, yd, yl))}</td><td>${pct(lookup('pass', st.t, st.s, yd, yl))}</td><td>${pct(lookup('go', st.t, st.s, yd, yl))}</td><td>${pct(lookup('passrate', st.t, st.s, yd, yl))}</td></tr>`;
+  let t = '<table><tr><th>Ball on</th><th>Run</th><th>Pass</th><th>Coaches go</th><th>Model call</th><th>Margin (pts)</th></tr>';
+  [90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 2].forEach(yl => {
+    const r = rows.find(p => p[0] === yl)[1];
+    t += `<tr><td>${ydLabel(yl)}</td><td>${pct(r.pRun)}</td><td>${pct(r.pPass)}</td><td>${pct(r.coachGo)}</td><td>${SHORT[r.best]}</td><td>${pts(r.margin)}</td></tr>`;
   });
   $('tbl').innerHTML = t + '</table>';
 }
 
-['yd', 'side', 'yl', 'qtr', 'clock', 'score'].forEach(id => $(id).addEventListener('input', render));
-fetch('calculator_grid.json').then(r => r.json()).then(j => { G = j; render(); })
-  .catch(() => { $('situation').textContent = 'Could not load model data.'; });
+document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', render));
+fetch('calculator_models.json').then(r => r.json()).then(j => { M = j; render(); })
+  .catch(() => { $('situation').textContent = 'Could not load the models.'; });
 </script>
 </body>
 </html>
