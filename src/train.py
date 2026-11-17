@@ -15,6 +15,11 @@ from sklearn.metrics import roc_auc_score, brier_score_loss, log_loss
 from sklearn.model_selection import GroupKFold
 
 df = pd.read_parquet("data/fourth_downs.parquet")
+# Engineered features from features.py (team strength, QB, weather, fake flag)
+new = pd.read_parquet("data/plays.parquet", columns=["game_id", "play_id", "off_rating", "def_rating",
+                                                     "qb_rating", "wind", "temp", "is_fake"])
+df = df.merge(new, on=["game_id", "play_id"], how="left")
+df = df[df.is_fake != 1].reset_index(drop=True)   # fake punts/FGs are not normal attempts
 df["log_ydstogo"] = np.log1p(df.ydstogo)
 df["goal_to_go"] = (df.ydstogo >= df.yardline_100).astype(int)
 df["offense_formation"] = df.offense_formation.fillna("UNKNOWN").astype("category")
@@ -26,6 +31,7 @@ CONTEXT = DISTANCE + ["yardline_100", "goal_to_go", "is_pass", "shotgun", "no_hu
 OFFENSE = ["off_OL", "off_RB", "off_TE", "off_WR", "offense_formation"]
 # def_LB is omitted because DL + LB + DB = 11 (it is implied)
 DEFENSE = ["defenders_in_box", "def_DL", "def_DB", "box_minus_blockers"]
+STRENGTH = ["off_rating", "def_rating", "qb_rating", "wind", "temp"]
 DEFENSE_LOGIT = ["defenders_in_box", "def_DL", "def_DB"]  # box_minus_blockers is a linear combo
 
 train = df[df.season <= 2023].reset_index(drop=True)
@@ -44,7 +50,8 @@ LGB_PARAMS = dict(objective="binary", learning_rate=0.02, num_leaves=8,
 
 def fit_lgb(feats):
     # Pick n_estimators with game-grouped CV on training years only
-    mono = [-1 if f in ("ydstogo", "log_ydstogo") else 0 for f in feats]
+    mono = [-1 if f in ("ydstogo", "log_ydstogo") else 1 if f in ("off_rating", "def_rating", "qb_rating")
+            else 0 for f in feats]
     best = []
     for tr_i, va_i in GroupKFold(5).split(train, y_tr, train.game_id):
         m = lgb.LGBMClassifier(n_estimators=2000, monotone_constraints=mono, **LGB_PARAMS)
@@ -75,6 +82,14 @@ m_full = fit_lgb(FULL)
 p = m_full.predict_proba(test[FULL])[:, 1]
 results["5. LightGBM: + defense (full)"] = metrics(y_te, p); preds["lgb_full"] = p
 
+m_str = fit_lgb(CONTEXT + OFFENSE + STRENGTH)
+p = m_str.predict_proba(test[CONTEXT + OFFENSE + STRENGTH])[:, 1]
+results["6. LightGBM: context + offense + team/QB/weather"] = metrics(y_te, p); preds["lgb_str"] = p
+ALL = CONTEXT + OFFENSE + STRENGTH + DEFENSE
+m_all = fit_lgb(ALL)
+p = m_all.predict_proba(test[ALL])[:, 1]
+results["7. LightGBM: everything"] = metrics(y_te, p); preds["lgb_all"] = p
+
 res = pd.DataFrame(results).T.round(4)
 print(f"Train plays {len(train)}, test plays {len(test)}, test conv rate {y_te.mean():.3f}\n")
 print(res.to_string())
@@ -91,10 +106,18 @@ for _ in range(1000):
     gains.append(roc_auc_score(y_te[ix], preds["lgb_full"][ix]) - roc_auc_score(y_te[ix], preds["lgb_ctx"][ix]))
 lo, hi = np.percentile(gains, [2.5, 97.5])
 print(f"\nAUC gain from defensive features: {np.mean(gains):+.4f} (95% CI {lo:+.4f} to {hi:+.4f})")
+g2 = []
+rng = np.random.default_rng(1)
+for _ in range(1000):
+    g = rng.choice(games, len(games), replace=True)
+    ix = np.concatenate([idx_by_game[k] for k in g])
+    g2.append(roc_auc_score(y_te[ix], preds["lgb_str"][ix]) - roc_auc_score(y_te[ix], preds["lgb_ctx"][ix]))
+lo2, hi2 = np.percentile(g2, [2.5, 97.5])
+print(f"AUC gain from team/QB/weather features: {np.mean(g2):+.4f} (95% CI {lo2:+.4f} to {hi2:+.4f})")
 
 # Feature importance via SHAP values (LightGBM built-in TreeSHAP)
-contrib = m_full.predict(test[FULL], pred_contrib=True)[:, :-1]
-imp = pd.Series(np.abs(contrib).mean(0), index=FULL).sort_values(ascending=False)
+contrib = m_all.predict(test[ALL], pred_contrib=True)[:, :-1]
+imp = pd.Series(np.abs(contrib).mean(0), index=ALL).sort_values(ascending=False)
 imp.to_csv("outputs/shap_importance.csv", header=["mean_abs_shap"])
 print("\nMean |SHAP| (log-odds):\n", imp.round(4).to_string())
 
@@ -108,5 +131,6 @@ test_out["p_convert"] = preds["lgb_full"]
 test_out["p_distance_only"] = preds["distance"]
 test_out.to_csv("outputs/test_predictions.csv", index=False)
 m_full.booster_.save_model("outputs/lgb_full_model.txt")
-json.dump({"features": FULL, "gain_ci": [float(lo), float(hi)], "gain_mean": float(np.mean(gains))},
+json.dump({"features": FULL, "gain_ci": [float(lo), float(hi)], "gain_mean": float(np.mean(gains)),
+           "strength_gain_ci": [float(lo2), float(hi2)], "strength_gain_mean": float(np.mean(g2))},
           open("outputs/run_summary.json", "w"), indent=2)
