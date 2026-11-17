@@ -1,0 +1,7 @@
+# Raw data is downloaded by src/build_dataset.py; don't commit it
+data/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.venv/

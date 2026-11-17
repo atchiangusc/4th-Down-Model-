@@ -1,0 +1,6 @@
+,auc,brier,log_loss,brier_skill_vs_base
+1. Logistic: distance only,0.6573,0.2255,0.6424,0.0904
+2. Logistic: context + offense,0.6744,0.2234,0.6379,0.0988
+3. Logistic: + defense,0.6719,0.2239,0.6388,0.0969
+4. LightGBM: context + offense,0.6789,0.2211,0.6324,0.1082
+5. LightGBM: + defense (full),0.6793,0.2212,0.6325,0.1078
