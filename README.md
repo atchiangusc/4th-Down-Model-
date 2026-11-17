@@ -55,11 +55,14 @@ Personnel strings come in two formats (`4 DL, 2 LB, 5 DB` pre-2023 vs `3 CB, 2 D
 - 2025 is a partial season
 
 ## Part 2: Decision calculator (my model vs. NFL coaches)
-`src/decision_model.py` trains two situation-only models (inputs: yards to go, yard line, quarter and clock, score margin):
-- **Coach model:** P(an NFL team goes for it), trained on all 20,128 4th downs from 2021-2025 (game-grouped CV AUC 0.96)
-- **Conversion model:** P(convert | go for it), trained on 7,003 attempts from 2016-2025 (CV AUC 0.67), with conversion odds forced to never rise as distance grows
+`src/decision_model.py` trains three situation-only models (inputs: yards to go, yard line, quarter and clock, score margin):
+- **Coach go-for-it model:** P(an NFL team goes for it), trained on all 20,128 4th downs from 2021-2025 (game-grouped CV AUC 0.96)
+- **Conversion model:** P(convert | go for it, run or pass), trained on 7,003 attempts from 2016-2025, with conversion odds forced to never rise as distance grows. Adding run vs. pass raised CV AUC from 0.665 to 0.680
+- **Play-call model:** P(pass | go for it), trained on 2021-2025 attempts (CV AUC 0.87), showing what today's coaches actually call
 
 Both are precomputed over every distance, yard line, clock bucket, and score bucket, and served by a static web page (`docs/index.html`, hosted with GitHub Pages) with no backend. Main pattern: conversion odds barely change with field position, but coach behavior swings from about 5% (own territory) to about 90% (opponent's 35-45), then falls once a field goal is in range.
+
+**Run vs. pass:** at 4th and 2 near midfield in a close fourth quarter, runs convert about 64% vs. about 53% for passes, yet coaches pass about 87% of the time. Runs on 4th and long are rare (fewer than 75 per distance past 4th and 2 since 2016) and often surprise calls, so the calculator flags those estimates as rough.
 
 Go-for-it rate across all 4th downs rose from 12.7% in 2016 to 23.2% in 2025.
 
@@ -74,7 +77,7 @@ cp outputs/calculator_grid.json docs/ && cd docs && python -m http.server
 src/build_dataset.py    joins play-by-play + participation data, parses personnel
 src/train.py            conversion model with defensive features (ablation study)
 src/charts.py           README charts
-src/decision_model.py   coach go-for-it model + situation conversion model
+src/decision_model.py   coach go-for-it, run/pass conversion, and play-call models
 docs/                   web calculator (GitHub Pages)
 outputs/                charts, metrics, saved models
 ```

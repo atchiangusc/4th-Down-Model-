@@ -2,8 +2,10 @@
 
 Model A (coach model):    P(NFL team goes for it | situation), trained on every
                           4th down from 2021-2025 so it reflects today's coaches.
-Model B (conversion):     P(convert | went for it, situation), trained on all
-                          4th-down attempts 2016-2025.
+Model B (conversion):     P(convert | went for it, situation, run or pass),
+                          trained on all 4th-down attempts 2016-2025.
+Model C (play call):      P(pass | went for it, situation), 2021-2025, i.e. how
+                          often today's coaches throw when they go for it.
 
 Inputs are only what you'd know before the play: yards to go, yard line,
 quarter + clock, score differential. (The personnel model in train.py needs
@@ -20,6 +22,7 @@ from sklearn.metrics import roc_auc_score, brier_score_loss
 warnings.filterwarnings("ignore")
 FEATS = ["ydstogo", "yardline_100", "game_seconds_remaining", "half_seconds_remaining",
          "score_differential"]
+CONV_FEATS = FEATS + ["is_pass"]
 PARAMS = dict(objective="binary", learning_rate=0.03, num_leaves=16, min_child_samples=40,
               subsample=0.8, subsample_freq=1, reg_lambda=3.0, verbose=-1, random_state=7)
 
@@ -32,13 +35,14 @@ def load():
              & (pbp.qb_kneel != 1) & (pbp.qb_spike != 1) & (pbp.qtr <= 4)].copy()
     fd["go"] = fd.play_type.isin(["run", "pass"]).astype(int)
     fd["converted"] = (fd.fourth_down_converted == 1).astype(int)
+    fd["is_pass"] = (fd.play_type == "pass").astype(int)
     return fd
 
-def fit(df, target, mono):
+def fit(df, target, mono, feats=FEATS):
     """Pick tree count by game-grouped CV, report CV AUC/Brier, refit on all."""
-    X, y = df[FEATS], df[target].values
+    X, y = df[feats], df[target].values
     oof, iters = np.zeros(len(df)), []
-    cons = [mono.get(f, 0) for f in FEATS]
+    cons = [mono.get(f, 0) for f in feats]
     for tr, va in GroupKFold(5).split(X, y, df.game_id):
         m = lgb.LGBMClassifier(n_estimators=3000, monotone_constraints=cons, **PARAMS)
         m.fit(X.iloc[tr], y[tr], eval_set=[(X.iloc[va], y[va])],
@@ -55,9 +59,14 @@ def main():
     print(fd.groupby("season").go.mean().round(3).to_string())
 
     coach = fit(fd[fd.season >= 2021].reset_index(drop=True), "go", {"ydstogo": -1})
-    conv = fit(fd[fd.go == 1].reset_index(drop=True), "converted", {"ydstogo": -1})
+    att = fd[fd.go == 1].reset_index(drop=True)
+    print("  (conversion without run/pass, for comparison)")
+    fit(att, "converted", {"ydstogo": -1})
+    conv = fit(att, "converted", {"ydstogo": -1}, CONV_FEATS)
+    passm = fit(att[att.season >= 2021].reset_index(drop=True), "is_pass", {}, FEATS)
     coach.booster_.save_model("outputs/coach_go_model.txt")
     conv.booster_.save_model("outputs/situation_conversion_model.txt")
+    passm.booster_.save_model("outputs/coach_pass_rate_model.txt")
 
     # Prediction grid for the web calculator (precomputed so the page has no backend)
     YDS = list(range(1, 16))                       # 15 = "15+"
@@ -80,7 +89,13 @@ def main():
     grid = pd.DataFrame(rows, columns=["t", "s", "ydstogo", "yardline_100",
                                        "game_seconds_remaining", "half_seconds_remaining", "score_differential"])
     grid["go"] = coach.predict_proba(grid[FEATS])[:, 1]
-    grid["conv"] = conv.predict_proba(grid[FEATS])[:, 1]
+    grid["is_pass"] = 0
+    grid["run"] = conv.predict_proba(grid[CONV_FEATS])[:, 1]
+    grid["is_pass"] = 1
+    grid["pass"] = conv.predict_proba(grid[CONV_FEATS])[:, 1]
+    grid["passrate"] = passm.predict_proba(grid[FEATS])[:, 1]
+    # Blended conversion = what actually happens given today's run/pass mix
+    grid["conv"] = grid.passrate * grid["pass"] + (1 - grid.passrate) * grid.run
 
     # Historical counts for similar spots (distance bucket x 10-yard zone), all game states
     fd["yd_b"] = fd.ydstogo.clip(upper=15)
@@ -89,16 +104,19 @@ def main():
     hc = fd[fd.go == 1].groupby(["yd_b", "zone"]).agg(att=("converted", "size"), conv=("converted", "mean")).reset_index()
     hist = hist.merge(hc, on=["yd_b", "zone"], how="left").fillna(0)
 
+    # Sample sizes by distance and play type, so the page can flag thin estimates
+    runs_by_yd = att[att.play_type == "run"].ydstogo.clip(upper=15).value_counts().to_dict()
+    pass_by_yd = att[att.play_type == "pass"].ydstogo.clip(upper=15).value_counts().to_dict()
     out = {"time": [t[0] for t in TIME], "score": [s[0] for s in SCORE],
-           "go": {}, "conv": {}, "hist": {}}
-    for (t, s), sub in grid.groupby(["t", "s"]):
-        key = f"{t}_{s}"
-        out["go"][key] = {f"{r.ydstogo}_{r.yardline_100}": int(round(r.go * 1000)) for r in sub.itertuples()}
-        out["conv"][key] = {f"{r.ydstogo}_{r.yardline_100}": int(round(r.conv * 1000)) for r in sub.itertuples()}
-    # compress: per (t,s) store arrays indexed [yd-1][yl-1], -1 where impossible
-    for k in ("go", "conv"):
-        for key, d in out[k].items():
-            out[k][key] = [[d.get(f"{yd}_{yl}", -1) for yl in YL] for yd in YDS]
+           "n_run": {int(k): int(v) for k, v in runs_by_yd.items()},
+           "n_pass": {int(k): int(v) for k, v in pass_by_yd.items()}}
+    # Stored as whole percents in arrays indexed [ydstogo-1][yardline-1]; -1 = impossible spot
+    for k in ("go", "run", "pass", "passrate", "conv"):
+        out[k] = {}
+        for (t, s_), sub in grid.groupby(["t", "s"]):
+            arr = np.full((len(YDS), len(YL)), -1, dtype=int)
+            arr[sub.ydstogo.values - 1, sub.yardline_100.values - 1] = np.round(sub[k].values * 100).astype(int)
+            out[k][f"{t}_{s_}"] = arr.tolist()
     out["hist"] = {f"{int(r.yd_b)}_{int(r.zone)}": [int(r.n), round(r.go, 3), int(r.att), round(r.conv, 3)]
                    for r in hist.itertuples()}
     json.dump(out, open("outputs/calculator_grid.json", "w"), separators=(",", ":"))
