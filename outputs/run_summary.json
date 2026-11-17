@@ -1,0 +1,32 @@
+{
+  "features": [
+    "ydstogo",
+    "log_ydstogo",
+    "yardline_100",
+    "goal_to_go",
+    "is_pass",
+    "shotgun",
+    "no_huddle",
+    "score_differential",
+    "game_seconds_remaining",
+    "wp",
+    "home",
+    "outdoors",
+    "spread_line",
+    "off_OL",
+    "off_RB",
+    "off_TE",
+    "off_WR",
+    "offense_formation",
+    "defenders_in_box",
+    "def_DL",
+    "def_LB",
+    "def_DB",
+    "box_minus_blockers"
+  ],
+  "gain_ci": [
+    -0.004844352560354209,
+    0.0029720747127665007
+  ],
+  "gain_mean": -0.000830603089993053
+}
